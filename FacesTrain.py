@@ -1,16 +1,12 @@
 """
 FacesTrain
-
 tensorflow version >=2.2.0
-
 Custom parameters:
-1.	NUM_CLASSES classes number
+1.	faces names   classes=['name1', 'name2', 'name3']
 	BATCH_SIZE
 	IMG_HEIGHT IMG_WIDTH
 2. train_dir  training images directory
 3. test_dir   testing  images directory
-4. faces names   classes=['name1', 'name2', 'name3', 'name4', 'name5']
-
 """
 
 import os
@@ -21,7 +17,7 @@ import tensorflow as tf
 from tensorflow.keras import datasets, layers, optimizers, Sequential, Model, callbacks
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
-from resnet import resnet18
+from resnet import resnet34
 import datetime
 
 
@@ -36,13 +32,17 @@ def plotImages(images_arr):
 
 
 if __name__ == '__main__':
-    train_dir = ' train_dir'
-    test_dir = ' test_dir'
+    print('face classifier')
+    print('Author  :  Nakateru (2020.08.31)')
 
-    NUM_CLASSES = 5
-    BATCH_SIZE = 40
+    train_dir = 'train_dir'
+    test_dir = 'test_dir'
+
+    BATCH_SIZE = 20
     IMG_HEIGHT = 64
     IMG_WIDTH = 64
+    CLASSES = ['name1', 'name2', 'name3']
+    NUM_CLASSES = len(CLASSES)
 
     train_image_generator = ImageDataGenerator(rescale=1. / 255,
                                                rotation_range=15,
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                                                )
     train_data = train_image_generator.flow_from_directory(batch_size=BATCH_SIZE,
                                                            directory=train_dir,
-                                                           classes=['name1', 'name2', 'name3', 'name4', 'name5'],
+                                                           classes=CLASSES,
                                                            shuffle=True,
                                                            target_size=(IMG_HEIGHT, IMG_WIDTH),
                                                            color_mode='rgb',
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     test_data = test_image_generator.flow_from_directory(batch_size=BATCH_SIZE,
                                                          directory=test_dir,
-                                                         classes=['name1', 'name2', 'name3', 'name4', 'name5'],
+                                                         classes=CLASSES,
                                                          shuffle=True,
                                                          target_size=(IMG_HEIGHT, IMG_WIDTH),
                                                          color_mode='rgb',
@@ -86,12 +86,12 @@ if __name__ == '__main__':
     log_dir = './log/' + current_time
     summary_writer = tf.summary.create_file_writer(log_dir)
 
-    model = resnet18(NUM_CLASSES)
+    model = resnet34(NUM_CLASSES)
     model.build(input_shape=(None, IMG_HEIGHT, IMG_WIDTH, 3))
     model.summary()
 
     optimizer = optimizers.Adam(lr=1e-4)
-
+    #
     for step, (x, y) in enumerate(train_data):
         x = 2 * tf.cast(x, dtype=tf.float32) - 1
         y = tf.cast(y, dtype=tf.int32)
@@ -143,7 +143,7 @@ if __name__ == '__main__':
             print('Test Accuracy:', acc)
 
             with summary_writer.as_default():
-                 tf.summary.scalar('Test Accuracy', float(acc), step=step)
+                tf.summary.scalar('Test Accuracy', float(acc), step=step)
 
             model.save_weights('./log/model.ckpt')
             print('saved weights')
