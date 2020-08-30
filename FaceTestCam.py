@@ -1,16 +1,11 @@
 """
 FaceTest for camera
-
 tensorflow version >=2.2.0
-
 CascadeClassifier reference https://github.com/opencv/opencv/tree/master/data/haarcascades
-
 Custom parameters:
-1.	NUM_CLASSES classes number
+1.	face nameS CLASSES = ['name1', 'name2', 'name3']
 	IMG_HEIGHT IMG_WIDTH
-2. video path	
-3. face name
-
+2. video path
 """
 import os
 
@@ -18,7 +13,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
 import cv2 as cv
-from resnet import resnet18
+from resnet import resnet34
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -26,12 +21,12 @@ import numpy as np
 def face_detect(image):
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     face_detector = cv.CascadeClassifier("./haarcascades/haarcascade_frontalface_alt2.xml")
-    faces = face_detector.detectMultiScale(gray, 1.11, 5)
+    faces = face_detector.detectMultiScale(gray, 1.11, 5, minSize=(60, 60))
     lenFaces = len(faces)
     # print(lenFaces)
     if lenFaces == 0:
         face_detector = cv.CascadeClassifier("./haarcascades/haarcascade_profileface.xml")
-        faces = face_detector.detectMultiScale(gray, 1.09, 5)
+        faces = face_detector.detectMultiScale(gray, 1.09, 5, minSize=(60, 60))
     # print(faces)
     return faces
 
@@ -57,10 +52,15 @@ def put_text(image, name, prob, y, x, w, h):
 
 
 if __name__ == '__main__':
-    NUM_CLASSES = 5
+    print('face classifier')
+    print('Author  :  Nakateru (2020.08.31)')
+
     IMG_HEIGHT = 64
     IMG_WIDTH = 64
-    model = resnet18(NUM_CLASSES)
+    CLASSES = ['name1', 'name2', 'name3']
+    NUM_CLASSES = len(CLASSES)
+
+    model = resnet34(NUM_CLASSES)
     model.build(input_shape=(None, IMG_HEIGHT, IMG_WIDTH, 3))
     model.load_weights('./log/model.ckpt')
     print('loaded weights')
@@ -69,8 +69,9 @@ if __name__ == '__main__':
     while True:
         _, frame = capture.read()
 
-        cv.namedWindow('face_detect', cv.WINDOW_NORMAL)
-        cv.resizeWindow('face_detect', 480, 360)
+        # cv.namedWindow('face_detect', cv.WINDOW_NORMAL)
+        cv.namedWindow('face_detect', cv.WINDOW_AUTOSIZE)
+        # cv.resizeWindow('face_detect', 360, 640)
 
         faces = face_detect(frame)
         # print(faces)
@@ -90,16 +91,7 @@ if __name__ == '__main__':
             pred = pred.numpy()[0]
             # print('prediction:', pred)
             prob = prob.numpy()[0][pred]
-            if pred == 0:
-                name = 'name1'
-            elif pred == 1:
-                name = 'name2'
-            elif pred == 2:
-                name = 'name3'
-            elif pred == 3:
-                name = 'name4'
-            else:
-                name = 'name5'
+            name = CLASSES[pred]
             # print('prediction:', name)
             # print('probability:', prob)
 
