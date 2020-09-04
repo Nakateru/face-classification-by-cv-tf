@@ -7,7 +7,7 @@ Set  3 directories:
 
 Summary
 For saving faces for CNN training
-If it can not be recognized,it will be rotated left or right 5 deg each try.
+If it can not be recognized,it will be rotated left or right 5 degs each try.
 
 """
 
