@@ -48,6 +48,7 @@ def face_fun(image):
 
     return lenFaces, face_image
 
+
 def detect_face(img_path):
     image = face_recognition.load_image_file(img_path)
     lenFaces, face_image0 = face_fun(image)
