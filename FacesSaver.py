@@ -74,14 +74,13 @@ def detect_face(img_path):
                     break
                 else:
                     continue
-
-            if lenFaces == 0:
-                print('Can not recognize:')  # can not recognize both when clockwise and anticlockwise
-                print(img_path)
-                shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
-            else:
-                pass
-
+        else:
+            pass
+        
+        if lenFaces == 0:
+            print('Can not recognize:')  # can not recognize both when clockwise and anticlockwise
+            print(img_path)
+            shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
         else:
             pass
 
