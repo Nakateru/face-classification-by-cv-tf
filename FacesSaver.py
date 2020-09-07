@@ -7,7 +7,7 @@ Set  3 directories:
 
 Summary
 For saving faces for CNN training
-If it can not be recognized,it will be rotated left or right 5 degs each try.
+If it can not be recognized,it will be rotated left or right 3 degs each try.
 
 """
 
@@ -48,31 +48,38 @@ def face_fun(image):
 
     return lenFaces, face_image
 
-
 def detect_face(img_path):
     image = face_recognition.load_image_file(img_path)
-    lenFaces, face_image = face_fun(image)
-    if lenFaces == 0:
-        for i in range(5, 85, 5):
-            rotatedImage = rotate(image, i, 0.6)
-            lenFaces, face_image = face_fun(rotatedImage)
-            if not lenFaces == 0:
-                save_face(face_image, img_path)
-                break
+    lenFaces, face_image0 = face_fun(image)
 
-        if lenFaces == 0:
-            for j in range(-5, -85, -5):
-                image = rotate(image, j, 0.6)
-                lenFaces, faces = face_fun(image)
-                if not lenFaces == 0:
-                    save_face(face_image, img_path)
-                    break
+    if lenFaces == 0:
+        for i in range(3, 90, 3):  # anticlockwise
+            rotatedImage = rotate(image, i, 0.6)
+            lenFaces, face_image1 = face_fun(rotatedImage)
+            if not lenFaces == 0:
+                save_face(face_image1, img_path)
+                break
             else:
-                print('Can not recognize:')
-                print(img_path)
-                shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
+                continue
+
+        if lenFaces == 0:  # clockwise (if can not recognize when anticlockwise)
+            for i in range(-3, -90, -3):
+                rotatedImage = rotate(image, i, 0.6)
+                lenFaces, face_image2 = face_fun(rotatedImage)
+                if not lenFaces == 0:
+                    save_face(face_image2, img_path)
+                    break
+                else:
+                    continue
+
+            print('Can not recognize:')  # can not recognize both when clockwise and anticlockwise
+            print(img_path)
+            shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
+        else:
+            pass
+
     else:
-        save_face(face_image, img_path)
+        save_face(face_image0, img_path)
 
     #     cv_img = cv.cvtColor(face_image, cv.COLOR_RGB2BGR)
     #     cv.imshow('face', cv_img)
