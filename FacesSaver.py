@@ -54,6 +54,7 @@ def detect_face(img_path):
     lenFaces, face_image0 = face_fun(image)
 
     if lenFaces == 0:
+        # print('anticlockwise...')
         for i in range(3, 90, 3):  # anticlockwise
             rotatedImage = rotate(image, i, 0.6)
             lenFaces, face_image1 = face_fun(rotatedImage)
@@ -64,6 +65,7 @@ def detect_face(img_path):
                 continue
 
         if lenFaces == 0:  # clockwise (if can not recognize when anticlockwise)
+            # print('clockwise...')
             for i in range(-3, -90, -3):
                 rotatedImage = rotate(image, i, 0.6)
                 lenFaces, face_image2 = face_fun(rotatedImage)
@@ -73,9 +75,13 @@ def detect_face(img_path):
                 else:
                     continue
 
-            print('Can not recognize:')  # can not recognize both when clockwise and anticlockwise
-            print(img_path)
-            shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
+            if lenFaces == 0:
+                print('Can not recognize:')  # can not recognize both when clockwise and anticlockwise
+                print(img_path)
+                shutil.move(img_path, './faces/NG/')  # cannot recognized dir # ex: ./faces/NG/
+            else:
+                pass
+
         else:
             pass
 
