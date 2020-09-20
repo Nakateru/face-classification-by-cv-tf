@@ -9,7 +9,7 @@ convolution layer1 │ convolution layer: conv + bn(BatchNormalization) 批量�
 ↓ ReLU             │x :Identity Function : down sample(下采样)
 convolution layer2 │
 ↓ F(x)             │  F(x) : ResNet Function 残差函数
-⊕←────────────────┘
+⊕←─────────────────┘
 H(x) = F(x) + x
 随着网络的加深，优化效果反而越差，测试数据和训练数据的准确率反而降低。(20层以上)
 这是由于网络的加深会造成梯度爆炸和梯度消失。
@@ -57,7 +57,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
-from tensorflow.keras import layers, Sequential, Model
+from tensorflow.keras import datasets, layers, optimizers, Sequential, Model
 
 
 class BasicBlock(layers.Layer):
@@ -78,6 +78,7 @@ class BasicBlock(layers.Layer):
         else:
             self.downsample = lambda x: x
 
+    @tf.function
     def call(self, inputs, training=None):
         # [b, h, w, c]
         # convolution layer1
@@ -98,7 +99,7 @@ class BasicBlock(layers.Layer):
 
 
 class ResNet(Model):
-    def __init__(self, layer_dims, num_classes):
+    def __init__(self, layer_dims, num_classes=100):
         # [2, 2, 2, 2] 4个resblock,每个包含2个BasicBlock,每个2层convolution (共16层convolution)
         super(ResNet, self).__init__()
 
@@ -119,6 +120,7 @@ class ResNet(Model):
 
         self.fc = layers.Dense(num_classes)
 
+    @tf.function
     def call(self, inputs, training=None, mask=None):
         x = self.stem(inputs)
 
@@ -148,10 +150,9 @@ class ResNet(Model):
         return res_blocks
 
 
-def resnet18(num_classes):  # 1+(2+2+2+2)*2+1=18
-    return ResNet([2, 2, 2, 2], num_classes)
+def resnet18():  # 1+(2+2+2+2)*2+1=18
+    return ResNet([2, 2, 2, 2])
 
 
-def resnet34(num_classes):  # 1+(3+4+6+3)*2+1=34
-    return ResNet([3, 4, 6, 3], num_classes)
-
+def resnet34():  # 1+(3+4+6+3)*2+1=34
+    return ResNet([3, 4, 6, 3])
